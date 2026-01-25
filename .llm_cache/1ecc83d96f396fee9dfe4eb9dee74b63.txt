@@ -1,0 +1,13 @@
+{
+  "summary": "Removed an invalid and unknown compiler option 'New' from tsconfig.json to resolve a syntax error and compilation failure.",
+  "patches": [
+    {
+      "path": "tsconfig.json",
+      "find": "\"New\" : ..",
+      "replace": ""
+    }
+  ],
+  "tests": {
+    "strategy": "Re-run existing TypeScript compilation checks and project build to verify tsconfig.json parses correctly and the TS5023 error 'Unknown compiler option 'New'' is no longer present."
+  }
+}

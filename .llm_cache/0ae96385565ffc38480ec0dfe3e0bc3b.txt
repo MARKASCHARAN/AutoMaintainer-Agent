@@ -1,0 +1,13 @@
+{
+  "summary": "Correct the syntax error in tsconfig.json by replacing the invalid `\"New\" : ..` entry with a syntactically valid `\"New\" : null` entry. This ensures the configuration file can be properly parsed.",
+  "patches": [
+    {
+      "path": "tsconfig.json",
+      "find": "\"New\" : ..",
+      "replace": "\"New\" : null"
+    }
+  ],
+  "tests": {
+    "strategy": "Execute `tsc --noEmit` to confirm that the `tsconfig.json` file is now syntactically valid and can be parsed successfully by the TypeScript compiler without any errors."
+  }
+}
