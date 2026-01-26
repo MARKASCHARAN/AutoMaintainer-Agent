@@ -1,1 +1,0 @@
-{"summary": "Mock fix plan (LLM disabled)", "patches": [], "tests": {"strategy": "No tests modified in mock mode"}}

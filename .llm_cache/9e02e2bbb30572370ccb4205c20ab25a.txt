@@ -1,0 +1,40 @@
+{
+  "summary": "Updated client-side dependencies (React, Vite, ESLint, and their types/globals) to stable, compatible versions (React 18, Vite 5, ESLint 8.x) to resolve package installation failures and ensure correct application behavior.",
+  "patches": [
+    {
+      "path": "client/package.json",
+      "find": "\"react\": \"^19.2.3\"",
+      "replace": "\"react\": \"^18.2.0\""
+    },
+    {
+      "path": "client/package.json",
+      "find": "\"react-dom\": \"^19.2.3\"",
+      "replace": "\"react-dom\": \"^18.2.0\""
+    },
+    {
+      "path": "client/package.json",
+      "find": "\"@types/react\": \"^19.2.5\"",
+      "replace": "\"@types/react\": \"^18.2.0\""
+    },
+    {
+      "path": "client/package.json",
+      "find": "\"@types/react-dom\": \"^19.2.3\"",
+      "replace": "\"@types/react-dom\": \"^18.2.0\""
+    },
+    {
+      "path": "client/package.json",
+      "find": "\"eslint\": \"^9.39.1\"",
+      "replace": "\"eslint\": \"^8.57.0\""
+    },
+    {
+      "path": "client/package.json",
+      "find": "\"globals\": \"^16.5.0\"",
+      "replace": "\"globals\": \"^15.0.0\""
+    },
+    {
+      "path": "client/package.json",
+      "find": "\"vite\": \"^7.2.4\"",
+      "replace": "\"vite\": \"^5.2.0\""
+    }
+  ]
+}

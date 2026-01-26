@@ -3,16 +3,19 @@ import json
 import re
 
 
-def safe_parse_json(raw: str) -> dict:
-    """
-    Attempts to safely extract and parse JSON from LLM output.
-    Includes repair for common invalid JSON issues.
-    """
+# -----------------------------
+# Robust JSON extraction
+# -----------------------------
 
-    # 1. Extract first JSON block
+def extract_json(raw: str) -> dict:
+    """
+    Safely extract the first valid JSON object from LLM output.
+    Repairs common JSON issues.
+    """
+    # 1. Extract first {...} block
     match = re.search(r"\{[\s\S]*\}", raw)
     if not match:
-        raise ValueError("No JSON object found in Gemini output")
+        raise ValueError("No JSON found in model output")
 
     text = match.group(0)
 
@@ -22,7 +25,7 @@ def safe_parse_json(raw: str) -> dict:
     except json.JSONDecodeError:
         pass
 
-    # 3. Repair common issue: unescaped quotes inside strings
+    # 3. Repair unescaped quotes inside summary
     def escape_inner_quotes(match):
         prefix = match.group(1)
         content = match.group(2)
@@ -37,74 +40,100 @@ def safe_parse_json(raw: str) -> dict:
         flags=re.DOTALL
     )
 
-    # 4. Try parsing again
     try:
         return json.loads(repaired)
     except Exception:
-        print("[Planner] ❌ JSON repair failed")
-        print("\n--- RAW OUTPUT ---")
-        print(raw)
-        print("\n--- EXTRACTED ---")
-        print(text)
-        print("\n--- REPAIRED ---")
-        print(repaired)
+        print("\n[Planner] ❌ JSON parse failed")
+        print("\n--- RAW ---\n", raw)
+        print("\n--- EXTRACTED ---\n", text)
+        print("\n--- REPAIRED ---\n", repaired)
         raise
 
 
-def plan_fix(diagnosis: str, feedback: str = None):
-    print("[Planner] Asking Gemini to create fix plan...")
+# -----------------------------
+# Validation
+# -----------------------------
+
+def validate_plan(plan: dict, files: list) -> None:
+    """
+    Raises exception if plan is unsafe or malformed.
+    """
+    if not isinstance(plan, dict):
+        raise ValueError("Plan must be a dict")
+
+    if "patches" not in plan:
+        raise ValueError("Plan missing 'patches'")
+
+    if not isinstance(plan["patches"], list):
+        raise ValueError("'patches' must be a list")
+
+    # Build lookup for file contents
+    file_map = {f["path"]: f["content"] for f in files}
+
+    for patch in plan["patches"]:
+        if "path" not in patch or "find" not in patch or "replace" not in patch:
+            raise ValueError(f"Invalid patch format: {patch}")
+
+        path = patch["path"]
+        find = patch["find"]
+
+        if path not in file_map:
+            raise ValueError(f"Patch targets unknown file: {path}")
+
+        if find not in file_map[path]:
+            raise ValueError(
+                f"Find block does NOT exist in {path}. Refusing hallucinated patch."
+            )
+
+
+# -----------------------------
+# Planner
+# -----------------------------
+
+def plan_fix(diagnosis, files, last_feedback=None):
+    file_dump = ""
+    for f in files:
+        file_dump += f"\n### FILE: {f['path']}\n{f['content']}\n"
 
     prompt = f"""
-You are an expert autonomous software repair agent.
+You are an autonomous senior software repair agent.
 
-Based on this diagnosis:
+You are given real files. You MUST obey these rules:
+- Only propose patches where "find" is an EXACT substring of the file.
+- Copy the "find" text exactly from the file.
+- If unsure, return empty patches.
+- Never invent dependencies.
+- Never add fake tests to bypass failures.
+- Do not modify package.json/pubspec.yaml unless the error explicitly requires it.
+
+Files:
+{file_dump}
+
+Diagnosis:
 {diagnosis}
 
-Previous test feedback (if any):
-{feedback}
+Previous failure:
+{last_feedback or "None"}
 
-Return ONLY valid JSON in this exact format:
-
+Return ONLY valid JSON:
 {{
-  "summary": "...",
+  "summary": "short explanation",
   "patches": [
     {{
-      "path": "relative/path/to/file.py",
-      "find": "...",
-      "replace": "..."
+      "path": "relative/path",
+      "find": "exact original text",
+      "replace": "updated text"
     }}
-  ],
-  "tests": {{
-    "strategy": "what tests were added/updated"
-  }}
+  ]
 }}
-
-Rules:
-- Output must be pure JSON
-- No markdown
-- No commentary
-- No backticks
 """
 
     raw = ask_gemini(prompt)
 
-    try:
-        plan = extract_json(raw)
+    plan = extract_json(raw)
 
-    except Exception as e:
-        print("[Planner] ❌ Failed to parse plan")
-        raise e
+    # Validate safety
+    validate_plan(plan, files)
 
     print("[Planner] Plan generated successfully.")
     return plan
-
-def extract_json(text: str) -> dict:
-    try:
-        return json.loads(text)
-    except:
-        # Try to extract first {...} block
-        match = re.search(r"\{[\s\S]*\}", text)
-        if not match:
-            raise ValueError("No JSON object found")
-
-        return json.loads(match.group(0))

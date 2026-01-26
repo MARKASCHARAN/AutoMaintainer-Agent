@@ -1,0 +1,15 @@
+{
+  "summary": "Replaced the hardcoded Groq API key with an environment variable lookup in `utils/groq_interaction.py` for improved security and flexibility. This change requires setting the `GROQ_API_KEY` environment variable before running the application.",
+  "patches": [
+    {
+      "path": "utils/groq_interaction.py",
+      "find": "import requests",
+      "replace": "import os\nimport requests"
+    },
+    {
+      "path": "utils/groq_interaction.py",
+      "find": "GROQ_API_KEY = \"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\"",
+      "replace": "GROQ_API_KEY = os.getenv(\"GROQ_API_KEY\")\nif not GROQ_API_KEY:\n    raise ValueError(\"GROQ_API_KEY environment variable not set\")"
+    }
+  ]
+}

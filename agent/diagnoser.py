@@ -3,7 +3,7 @@ from agent.gemini_client import ask_gemini
 def diagnose_issue(context):
     print("[Diagnoser] Sending summarized context to Gemini...")
 
-    summary = context["summary"]  # 👈 use structured summary, not full files
+    summary = context["summary"]  
 
     prompt = f"""
 You are a senior software engineer debugging a repository.

@@ -1,3 +1,6 @@
+
+
+
 import os
 import subprocess
 import shutil
@@ -23,6 +26,11 @@ ALLOWED_EXTENSIONS = (
     ".md"
 )
 
+SKIP_DIRS = {
+    ".git", "node_modules", "dist", "build", "target",
+    ".dart_tool", ".idea", ".vscode", "__pycache__"
+}
+
 
 
 def clone_repo(repo_url: str, dest: str):
@@ -39,18 +47,10 @@ def clone_repo(repo_url: str, dest: str):
 
 
 def collect_files(repo_path: str):
-    collected = {}
+    collected = []
 
     for root, dirs, files in os.walk(repo_path):
-        # Skip .git and node_modules and build folders
-        dirs[:] = [
-    d for d in dirs
-    if d not in {
-        ".git", "node_modules", "dist", "build", "target",
-        ".dart_tool", ".idea", ".vscode", "__pycache__"
-    }
-]
-
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
 
         for file in files:
             if file.endswith(ALLOWED_EXTENSIONS):
@@ -60,12 +60,15 @@ def collect_files(repo_path: str):
                     with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
                         content = f.read()
 
-                        # Trim huge files
                         if len(content) > MAX_FILE_SIZE:
                             content = content[:MAX_FILE_SIZE] + "\n... [TRUNCATED]"
 
                         relative = os.path.relpath(full_path, repo_path)
-                        collected[relative] = content
+
+                        collected.append({
+                            "path": relative,
+                            "content": content
+                        })
 
                 except Exception as e:
                     print(f"[Observer] Skipped {full_path}: {e}")
@@ -78,21 +81,38 @@ def observe_repo(repo_url: str):
 
     os.makedirs(BASE_DIR, exist_ok=True)
 
-    repo_name = repo_url.rstrip("/").split("/")[-1]
+    repo_name = repo_url.rstrip("/").split("/")[-1].replace(".git", "")
     local_path = os.path.join(BASE_DIR, repo_name)
 
     clone_repo(repo_url, local_path)
+
     files = collect_files(local_path)
 
     print(f"[Observer] Collected {len(files)} source files")
 
-    summary = summarize_repo(files)
+    # ✅ Build structured summary for Diagnoser
+    summary = {
+        "file_tree": [f["path"] for f in files],
+        "important_files": {
+            f["path"]: f["content"][:2000]
+            for f in files
+            if f["path"].endswith((
+                "package.json",
+                "tsconfig.json",
+                "pubspec.yaml",
+                "pyproject.toml",
+                "requirements.txt"
+            ))
+        }
+    }
+
     return {
-    "repo": repo_url,
-    "file_count": len(files),
-    "summary": summary,
-    "local_path": local_path
-}
+        "repo": repo_url,
+        "local_path": local_path,
+        "files": files,     # for planner
+        "summary": summary  # for diagnoser ✅
+    }
+
 
 def summarize_repo(files: dict):
     summary = {
@@ -111,3 +131,5 @@ def summarize_repo(files: dict):
             summary["important_files"][path] = content[:2000]
 
     return summary
+
+

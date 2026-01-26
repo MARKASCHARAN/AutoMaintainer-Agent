@@ -1,0 +1,15 @@
+{
+  "summary": "Modified utils/groq_interaction.py to load the Groq API key from environment variables instead of hardcoding it, enhancing security and deployment flexibility.",
+  "patches": [
+    {
+      "path": "utils/groq_interaction.py",
+      "find": "import requests\nimport re",
+      "replace": "import requests\nimport re\nimport os"
+    },
+    {
+      "path": "utils/groq_interaction.py",
+      "find": "GROQ_API_KEY = \"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\"",
+      "replace": "GROQ_API_KEY = os.environ.get(\"GROQ_API_KEY\")"
+    }
+  ]
+}

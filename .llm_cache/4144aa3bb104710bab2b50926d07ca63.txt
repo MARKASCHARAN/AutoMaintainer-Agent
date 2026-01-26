@@ -1,0 +1,30 @@
+{
+  "summary": "Downgraded `react`, `react-dom`, `@types/react`, `@types/react-dom`, and `vite` to their latest stable major versions (React 18.x, Vite 5.x) to resolve dependency installation issues caused by using unreleased major versions.",
+  "patches": [
+    {
+      "path": "frontend/package.json",
+      "find": "    \"react\": \"^19.2.0\",",
+      "replace": "    \"react\": \"^18.2.0\","
+    },
+    {
+      "path": "frontend/package.json",
+      "find": "    \"react-dom\": \"^19.2.0\",",
+      "replace": "    \"react-dom\": \"^18.2.0\","
+    },
+    {
+      "path": "frontend/package.json",
+      "find": "    \"@types/react\": \"^19.2.5\",",
+      "replace": "    \"@types/react\": \"^18.2.0\","
+    },
+    {
+      "path": "frontend/package.json",
+      "find": "    \"@types/react-dom\": \"^19.2.3\",",
+      "replace": "    \"@types/react-dom\": \"^18.2.0\","
+    },
+    {
+      "path": "frontend/package.json",
+      "find": "    \"vite\": \"^7.2.4\"",
+      "replace": "    \"vite\": \"^5.0.0\""
+    }
+  ]
+}

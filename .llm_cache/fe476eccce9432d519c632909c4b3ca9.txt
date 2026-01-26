@@ -1,0 +1,8 @@
+{
+  "root_cause": "Missing or incorrect Groq API key configuration.",
+  "responsible_files": [
+    "utils/groq_interaction.py",
+    "app.py"
+  ],
+  "explanation": "The application relies on `utils/groq_interaction.py` to interact with the Groq API. A common failure point is the absence or invalidity of the necessary API key. If the key is not correctly loaded (e.g., from environment variables in `app.py` or directly in `groq_interaction.py`) or is expired/incorrect, Groq API requests will consistently fail with authentication errors (e.g., 401 Unauthorized), preventing any successful communication with the LLM."
+}
