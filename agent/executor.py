@@ -2,6 +2,8 @@ import os
 import difflib
 import subprocess
 import json
+import shutil
+import tempfile
 
 class PatchApplyError(Exception):
     pass
@@ -43,7 +45,7 @@ def apply_patch(base_path: str, patch: dict):
         print(f"[Executor] Creating new file: {path}")
         with open(full_path, "w", encoding="utf-8") as f:
             f.write(replace.strip() + "\n")
-        return
+        return True
 
     with open(full_path, "r", encoding="utf-8") as f:
         original = f.read()
@@ -69,8 +71,7 @@ def apply_patch(base_path: str, patch: dict):
     # ------------------
     elif mode == "append":
         if replace.strip() in original:
-            print(f"[Executor] Skipping duplicate append in {path}")
-            return
+            raise PatchApplyError(f"Append resulted in no-op (already exists) in {path}")
 
         updated = original.rstrip() + "\n\n" + replace.strip() + "\n"
 
@@ -79,13 +80,18 @@ def apply_patch(base_path: str, patch: dict):
     # ------------------
     elif mode == "delete":
         if find not in original:
-            print(f"[Executor] Nothing to delete in {path}")
-            return
+            raise PatchApplyError(f"Nothing to delete in {path}")
 
         updated = original.replace(find, "", 1)
 
     else:
         raise PatchApplyError(f"Unknown patch mode: {mode}")
+
+    # ------------------
+    # Block no-op patches
+    # ------------------
+    if updated == original:
+        raise PatchApplyError(f"No-op patch detected for {path}")
 
     # ------------------
     # Validate structured files
@@ -104,6 +110,7 @@ def apply_patch(base_path: str, patch: dict):
         f.write(updated)
 
     print(f"[Executor] Patched: {path}")
+    return True
 
 
 # -------------------------
@@ -111,7 +118,7 @@ def apply_patch(base_path: str, patch: dict):
 # -------------------------
 
 def validate_file(path: str, content: str):
-    """Prevent agent from breaking config files"""
+    """Prevent agent from breaking structured config files"""
 
     if path.endswith(".json"):
         try:
@@ -129,45 +136,72 @@ def validate_file(path: str, content: str):
 
 
 # -------------------------
-# Executor
+# Executor (Transactional)
 # -------------------------
 
 def execute_plan(plan: dict, repo_path: str):
     print("\n[Executor] Applying patches...")
 
-    applied = []
     patches = plan.get("patches", [])
+    applied_files = []
 
-    for patch in patches:
-        try:
-            apply_patch(repo_path, patch)
-            applied.append(patch["path"])
-        except PatchApplyError as e:
-            print(f"[Executor] ❌ Patch rejected: {e}")
-            raise  # propagate to orchestrator retry loop
+    # Backup folder for rollback
+    backup_dir = tempfile.mkdtemp(prefix="agent_backup_")
 
-    tests = plan.get("tests")
+    try:
+        # Backup files first
+        for patch in patches:
+            path = patch["path"]
+            full = os.path.join(repo_path, path)
 
-    if not tests:
-        print("[Executor] No tests to add.")
-        return applied
+            if os.path.exists(full):
+                os.makedirs(os.path.dirname(os.path.join(backup_dir, path)), exist_ok=True)
+                shutil.copy2(full, os.path.join(backup_dir, path))
 
-    if isinstance(tests, dict):
-        print(f"[Executor] Test strategy: {tests.get('strategy')}")
-        return applied
+        # Apply patches
+        for patch in patches:
+            changed = apply_patch(repo_path, patch)
+            if changed:
+                applied_files.append(patch["path"])
 
-    if isinstance(tests, list):
-        for test in tests:
-            path = os.path.join(repo_path, test["path"])
-            os.makedirs(os.path.dirname(path), exist_ok=True)
+        tests = plan.get("tests")
 
-            with open(path, "w", encoding="utf-8") as f:
-                f.write(test["content"])
+        if not tests:
+            print("[Executor] No tests to add.")
+            return applied_files
 
-            print(f"[Executor] Created test: {path}")
-            applied.append(test["path"])
+        if isinstance(tests, dict):
+            print(f"[Executor] Test strategy: {tests.get('strategy')}")
+            return applied_files
 
-    return applied
+        if isinstance(tests, list):
+            for test in tests:
+                path = os.path.join(repo_path, test["path"])
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(test["content"])
+
+                print(f"[Executor] Created test: {path}")
+                applied_files.append(test["path"])
+
+        return applied_files
+
+    except Exception as e:
+        print("[Executor] ❌ Patch failed, rolling back changes...")
+
+        # Restore backups
+        for root, _, files in os.walk(backup_dir):
+            for name in files:
+                rel = os.path.relpath(os.path.join(root, name), backup_dir)
+                target = os.path.join(repo_path, rel)
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                shutil.copy2(os.path.join(root, name), target)
+
+        shutil.rmtree(backup_dir, ignore_errors=True)
+
+        raise
+
 
 # -------------------------
 # Diff printer
@@ -178,8 +212,8 @@ def show_diff(old, new, path):
     diff = difflib.unified_diff(
         old.splitlines(),
         new.splitlines(),
-        fromfile="before",
-        tofile="after",
+        fromfile=f"{path} (before)",
+        tofile=f"{path} (after)",
         lineterm=""
     )
     for line in diff:

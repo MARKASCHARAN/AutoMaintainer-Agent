@@ -1,0 +1,25 @@
+{
+  "summary": "Update Vite and related plugins to support React 19.",
+  "patches": [
+    {
+      "path": "package.json",
+      "find": "\"vite\": \"^7.2.4\"",
+      "replace": "\"vite\": \"^5.3.3\""
+    },
+    {
+      "path": "package.json",
+      "find": "\"@vitejs/plugin-react\": \"^5.1.1\"",
+      "replace": "\"@vitejs/plugin-react\": \"^4.7.0\""
+    },
+    {
+      "path": "vite.config.js",
+      "find": "import { defineConfig } from 'vite'",
+      "replace": "import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';"
+    },
+    {
+      "path": "vite.config.js",
+      "find": "export default defineConfig({\n  plugins: [react()],\n})",
+      "replace": "export default defineConfig({\n  plugins: [\n    react({\n      // More recent versions of @vitejs/plugin-react might require additional configuration for React 19\n      // check the plugin's documentation for specific options.\n    }),\n  ],\n});"
+    }
+  ]
+}

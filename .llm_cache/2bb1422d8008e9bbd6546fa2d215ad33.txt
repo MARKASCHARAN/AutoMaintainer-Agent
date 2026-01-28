@@ -1,0 +1,10 @@
+{
+  "summary": "Update Vite to a version compatible with React 19, as the current version (7.2.4) is too old. Vite v5 and above officially support React 19. The configuration in `vite.config.js` might also need an update to reflect newer Vite plugin structures if applicable, though the primary issue is the version mismatch.",
+  "patches": [
+    {
+      "path": "package.json",
+      "find": "\"vite\": \"^7.2.4\"",
+      "replace": "\"vite\": \"^5.0.0\""
+    }
+  ]
+}

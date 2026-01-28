@@ -1,7 +1,0 @@
-{
-  "root_cause": "Usage of unreleased major versions for core dependencies",
-  "responsible_files": [
-    "frontend/package.json"
-  ],
-  "technical_explanation": "The `frontend/package.json` specifies `vite` version `^7.2.4` and `react` version `^19.2.0`. As of late 2024, Vite 7.x is not a stable release (latest is 5.x), and React 19.x is currently in release candidate status (latest stable is 18.x). Attempting to install these dependencies will likely result in installation failures (for Vite 7, which is not published) or lead to significant instability and unexpected behavior (for React 19 RC), preventing the frontend application from building or running correctly."
-}
