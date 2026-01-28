@@ -106,18 +106,23 @@ def run_agent(repo_url: str):
             except Exception:
                 pr_body = plan.get("summary", "Automated fix by AutoMaintainer")
 
+            pr_title = f"AutoMaintainer Fix ({attempt} attempt)"
             pr_url = create_pull_request(
                 repo_url=repo_url,
                 branch=branch,
-                title=f"AutoMaintainer Fix ({attempt} attempt)",
+                title=pr_title,
                 body=pr_body
             )
+
+            files_changed = list(set(p["path"] for p in plan.get("patches", [])))
 
             return {
                 "status": "success",
                 "attempts": attempt,
                 "applied": applied,
                 "pr": pr_url,
+                "pr_title": pr_title,
+                "files_changed": files_changed,
                 "output": result.output[-2000:]
             }
 

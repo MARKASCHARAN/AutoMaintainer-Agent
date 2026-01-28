@@ -237,10 +237,23 @@ def git_commit(repo_path: str, message: str):
             print("[Executor] No changes detected, skipping commit")
             return
 
-        subprocess.run(["git", "add", "."], cwd=repo_path, check=True)
-        subprocess.run(["git", "commit", "-m", message], cwd=repo_path, check=True)
+        subprocess.run(["git", "add", "."], cwd=repo_path, check=True, capture_output=True)
+        
+        # Checking commit output is useful
+        commit = subprocess.run(
+             ["git", "commit", "-m", message], 
+             cwd=repo_path, 
+             check=True,
+             capture_output=True,
+             text=True
+        )
+        print(commit.stdout)
 
         print("[Executor] Git commit created")
 
+    except subprocess.CalledProcessError as e:
+        print("[Executor] Git commit failed or skipped:", e)
+        if e.stderr:
+            print(e.stderr)
     except Exception as e:
         print("[Executor] Git commit skipped:", e)

@@ -103,6 +103,20 @@ def create_pull_request(repo_url, branch, title, body):
 # Git Operations
 # -------------------------
 
+def run_git(cmd, cwd):
+    try:
+        result = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+        if result.stdout and result.stdout.strip():
+            print(result.stdout.strip())
+        if result.stderr and result.stderr.strip():
+            print(result.stderr.strip())
+        
+        if result.returncode != 0:
+            raise RuntimeError(f"Git command failed: {' '.join(cmd)}\n{result.stderr}")
+        return result
+    except Exception as e:
+        raise RuntimeError(f"Git execution error: {e}")
+
 def ensure_fork_and_remote(repo_url, repo_path):
     owner, repo = parse_repo(repo_url)
 
@@ -114,55 +128,32 @@ def ensure_fork_and_remote(repo_url, repo_path):
         upstream_url = f"https://github.com/{owner}/{repo}.git"
 
         print(f"[GitHub] Setting origin → {fork_url}")
-        subprocess.run(
-            ["git", "remote", "set-url", "origin", fork_url],
-            cwd=repo_path,
-            check=True
-        )
+        run_git(["git", "remote", "set-url", "origin", fork_url], cwd=repo_path)
 
         # Add upstream remote if missing
-        remotes = subprocess.run(
-            ["git", "remote"],
-            cwd=repo_path,
-            capture_output=True,
-            text=True
-        ).stdout
+        remotes = run_git(["git", "remote"], cwd=repo_path).stdout
 
         if "upstream" not in remotes:
-            subprocess.run(
-                ["git", "remote", "add", "upstream", upstream_url],
-                cwd=repo_path,
-                check=True
-            )
+            run_git(["git", "remote", "add", "upstream", upstream_url], cwd=repo_path)
 
         # Sync fork with upstream
         print("[GitHub] Syncing fork with upstream...")
-        subprocess.run(["git", "fetch", "upstream"], cwd=repo_path, check=True)
+        run_git(["git", "fetch", "upstream"], cwd=repo_path)
 
         default_branch = get_default_branch(owner, repo)
 
-        subprocess.run(
-            ["git", "checkout", default_branch],
-            cwd=repo_path,
-            check=True
-        )
+        run_git(["git", "checkout", default_branch], cwd=repo_path)
 
-        subprocess.run(
-            ["git", "merge", f"upstream/{default_branch}"],
-            cwd=repo_path,
-            check=True
-        )
-
-
+        run_git(["git", "merge", f"upstream/{default_branch}"], cwd=repo_path)
 
 
 def create_branch(repo_path):
     branch = f"automaintainer/{os.urandom(4).hex()}"
-    subprocess.run(["git", "checkout", "-b", branch], cwd=repo_path, check=True)
+    run_git(["git", "checkout", "-b", branch], cwd=repo_path)
     print(f"[GitHub] Created branch: {branch}")
     return branch
 
 
 def push_changes(repo_path):
-    subprocess.run(["git", "push", "-u", "origin", "HEAD"], cwd=repo_path, check=True)
+    run_git(["git", "push", "-u", "origin", "HEAD"], cwd=repo_path)
     print("[GitHub] Changes pushed")
