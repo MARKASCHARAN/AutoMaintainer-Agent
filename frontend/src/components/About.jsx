@@ -1,243 +1,211 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  Eye,
-  Brain,
-  Map,
-  Code2,
-  ShieldCheck,
-  Github,
-  Twitter,
-  Linkedin,
-  ArrowRight,
-  Sparkles
-} from "lucide-react";
-import { useRef } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import { Github, Twitter, Linkedin, Terminal, Cpu, Network, Zap } from "lucide-react";
 
 export default function AboutPage() {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: containerRef });
-  
-  const yHero = useTransform(scrollYProgress, [0, 0.5], [0, -100]);
-  const opacityHero = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#020205] text-white overflow-hidden selection:bg-indigo-500/30">
+    <div className="bg-[#050505] min-h-screen text-zinc-300 selection:bg-white/20">
+      
+      {/* GRID BACKGROUND */}
+      <div className="fixed inset-0 z-0 pointer-events-none" 
+           style={{ 
+             backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)', 
+             backgroundSize: '40px 40px' 
+           }} 
+      />
 
-      {/* 4K Background Mesh */}
-      <div className="fixed inset-0 z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[180px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-600/10 blur-[180px] rounded-full" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-150 contrast-150 mix-blend-overlay pointer-events-none" />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6">
-
-        {/* --- HERO SECTION --- */}
-        <motion.section 
-          style={{ y: yHero, opacity: opacityHero }}
-          className="min-h-[90vh] flex flex-col items-center justify-center text-center pt-20"
+      {/* --- HERO --- */}
+      <section className="relative z-10 min-h-[80vh] flex flex-col justify-center px-6 md:px-12 max-w-7xl mx-auto border-x border-white/5">
+        <motion.div 
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.8 }}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="mb-8 p-3 rounded-full bg-white/5 border border-white/10 backdrop-blur-md"
-          >
-            <Sparkles className="w-6 h-6 text-indigo-400" />
-          </motion.div>
-
-          <motion.h1 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-6xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter mb-8 leading-[0.9]"
-          >
-            Autonomous <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-purple-300">
-              Engineering
-            </span>
-          </motion.h1>
-
-          <motion.p 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="max-w-2xl text-xl md:text-2xl text-zinc-400 leading-relaxed"
-          >
-            We are moving beyond "Copilots". <br />
-            AutoMaintainer is a self-governing agent that treats your codebase like a living organism—diagnosing, fixing, and verifying autonomously.
-          </motion.p>
-        </motion.section>
-
-        {/* --- ARCHITECTURE GRID --- */}
-        <section className="py-32">
-          <SectionTitle title="The Cognitive Architecture" subtitle="How it thinks, plans, and acts." />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ArchitectureCard 
-              icon={<Eye className="w-8 h-8 text-cyan-400" />} 
-              title="Observer" 
-              desc="Continuously monitors file changes, logs, and build artifacts. Builds a real-time dependency graph of the repo." 
-              delay={0}
-            />
-            <ArchitectureCard 
-              icon={<Brain className="w-8 h-8 text-purple-400" />} 
-              title="Reasoning Engine" 
-              desc="Uses Gemini 1.5 Pro (1M context) to 'grok' the entire codebase, identifying root causes beyond simple stack traces." 
-              delay={0.1}
-            />
-            <ArchitectureCard 
-              icon={<Map className="w-8 h-8 text-yellow-400" />} 
-              title="Strategic Planner" 
-              desc="Formulates a multi-step repair plan. Decomposes complex bugs into atomic, verifiable edits." 
-              delay={0.2}
-            />
-            <ArchitectureCard 
-              icon={<Code2 className="w-8 h-8 text-indigo-400" />} 
-              title="Surgical Executor" 
-              desc="Applies AST-aware transformations. It doesn't rewrite files; it performs precise surgery on functions and classes." 
-              delay={0.3}
-            />
-            <ArchitectureCard 
-              icon={<ShieldCheck className="w-8 h-8 text-emerald-400" />} 
-              title="Verification Loop" 
-              desc="The firewall against hallucinations. Runs tests after every edit. If tests fail, it self-corrects." 
-              delay={0.4}
-            />
-             <ArchitectureCard 
-              icon={<Github className="w-8 h-8 text-white" />} 
-              title="Autonomy Layer" 
-              desc="Interacts with the real world. Opens PRs, comments on issues, and manages git branches without human help." 
-              delay={0.5}
-            />
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-[1px] w-12 bg-zinc-600" />
+            <span className="font-mono text-xs tracking-widest uppercase text-zinc-500">Manifesto v1.0</span>
           </div>
-        </section>
+          
+          <h1 className="text-6xl md:text-8xl font-bold text-white tracking-tighter mb-8 max-w-4xl">
+            The end of <br />
+            <span className="text-zinc-500">manual maintenance.</span>
+          </h1>
+          
+          <p className="max-w-xl text-xl text-zinc-400 font-light leading-relaxed">
+            Software maintenance consumes 40% of engineering time. 
+            We built a machine that reads code, understands intent, and safely evolves systems without human intervention.
+          </p>
+        </motion.div>
+      </section>
 
-        {/* --- PHILOSOPHY --- */}
-        <section className="py-32 border-t border-white/5">
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-             <motion.div
-               initial={{ opacity: 0, x: -50 }}
-               whileInView={{ opacity: 1, x: 0 }}
-               viewport={{ once: true }}
-             >
-                <h2 className="text-5xl font-bold mb-8 leading-tight">
-                  Most tools generate text. <br />
-                  <span className="text-indigo-400">We generate fixes.</span>
-                </h2>
-                <div className="space-y-6 text-lg text-zinc-400">
-                  <p>
-                    The problem with LLMs isn't intelligence—it's <strong>integration</strong>. A chat interface is not an engineering workflow. 
-                  </p>
-                  <p>
-                    AutoMaintainer closes the loop. It doesn't wait for a prompt. It wakes up when a build fails, fixes it, and goes back to sleep.
-                  </p>
-                </div>
-             </motion.div>
-             
-             <div className="relative h-[400px] w-full bg-gradient-to-br from-indigo-900/20 to-black border border-white/10 rounded-3xl p-8 overflow-hidden group">
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black to-transparent z-10" />
+      {/* --- STICKY SCROLL STORY --- */}
+      <div className="relative border-t border-white/5">
+         <StickySection 
+            step="01" 
+            title="Total Recall" 
+            desc="The agent ingests your entire repository into a vector-augmented graph. It knows every function call, every variable, and every dependency."
+            visual={<NetworkVisual />}
+         />
+         <StickySection 
+            step="02" 
+            title="Neural Reasoning" 
+            desc="Using Gemini 1.5 Pro's massive context window, it doesn't just match patterns. It reasons about control flow and edge cases to find the root cause."
+            visual={<BrainVisual />}
+         />
+         <StickySection 
+            step="03" 
+            title="Surgical Execution" 
+            desc="It writes code like a senior engineer: clean, atomic commits. No blind file overwrites. It creates a dedicated branch for every fix."
+            visual={<CodeVisual />}
+         />
+      </div>
+
+       {/* --- BUILDER ID CARD --- */}
+      <section className="py-32 px-6 border-t border-white/5 bg-[#080808]">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-4 mb-12 justify-center">
+             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+             <span className="font-mono text-xs uppercase tracking-widest text-zinc-500">Lead Engineer</span>
+          </div>
+
+          <div className="relative group perspective-1000">
+             <div className="relative bg-zinc-900 border border-white/10 p-8 md:p-12 rounded-xl overflow-hidden hover:border-white/20 transition-colors duration-500">
                 
-                {/* Simulated Code Rain / Activity */}
-                <div className="font-mono text-xs text-indigo-300 space-y-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                   <div className="flex gap-4"><span className="text-zinc-500">09:41:22</span> [Observer] Detected crash in <span className="text-white">UserAuth.ts</span></div>
-                   <div className="flex gap-4"><span className="text-zinc-500">09:41:24</span> [Planner] Hypothesis: Null reference in JWT parser</div>
-                   <div className="flex gap-4"><span className="text-zinc-500">09:41:25</span> [Executor] Applying patch to line 42...</div>
-                   <div className="flex gap-4"><span className="text-zinc-500">09:41:28</span> [Verifier] Running `npm test`... <span className="text-emerald-400">PASSED</span></div>
-                   <div className="flex gap-4"><span className="text-zinc-500">09:41:30</span> [GitHub] PR #104 Created: "fix: handle null jwt payload"</div>
-                </div>
-
-                <div className="absolute bottom-8 right-8 z-20">
-                  <div className="px-6 py-3 bg-white text-black font-bold rounded-full flex items-center gap-2">
-                    Autonomous Mode <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  </div>
+                {/* Tech aesthetics */}
+                <div className="absolute top-4 right-4 font-mono text-[10px] text-zinc-700">ID: MSC-001</div>
+                <div className="absolute bottom-4 left-4 font-mono text-[10px] text-zinc-700">STATUS: ACTIVE</div>
+                
+                <div className="flex flex-col md:flex-row gap-10 items-center">
+                   <div className="w-32 h-32 bg-zinc-800 rounded-lg flex items-center justify-center border border-white/5 relative overflow-hidden shrink-0">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent" />
+                      <span className="text-3xl font-bold text-white/20">M</span>
+                   </div>
+                   
+                   <div className="text-center md:text-left">
+                      <h3 className="text-2xl font-bold text-white mb-2">Marka Sai Charan</h3>
+                      <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-6">
+                        <Badge>System Architect</Badge>
+                        <Badge>AI Research</Badge>
+                        <Badge>Full Stack</Badge>
+                      </div>
+                      <p className="text-zinc-400 font-mono text-sm leading-relaxed mb-6">
+                        "Building the autonomous workforce of the future. My goal is to make 'legacy code' a concept of the past."
+                      </p>
+                      
+                      <div className="flex gap-6 justify-center md:justify-start">
+                         <SocialIcon icon={<Github size={18} />} />
+                         <SocialIcon icon={<Twitter size={18} />} />
+                         <SocialIcon icon={<Linkedin size={18} />} />
+                      </div>
+                   </div>
                 </div>
              </div>
-           </div>
-        </section>
-
-        {/* --- BUILDER PROFILE --- */}
-        <section className="py-32 border-t border-white/5">
-           <SectionTitle title="The Builder" subtitle="Forged in code, driven by automation." />
-           
-           <div className="max-w-4xl mx-auto bg-[#0a0a0c] border border-white/10 rounded-[2.5rem] p-10 md:p-14 relative overflow-hidden group">
-             {/* Glow Effect */}
-             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[150px] rounded-full group-hover:bg-indigo-600/20 transition-colors duration-700" />
              
-             <div className="relative z-10 flex flex-col md:flex-row items-center gap-10 md:gap-14">
-               {/* Avatar */}
-               <div className="relative">
-                 <div className="w-40 h-40 rounded-full bg-zinc-800 border-2 border-white/10 overflow-hidden shadow-2xl relative z-10">
-                   {/* Placeholder for avatar, utilizing gradient/initials if no image */}
-                   <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-black flex items-center justify-center text-4xl font-bold text-white/20">M</div>
-                 </div>
-                 {/* Decorative rings */}
-                 <div className="absolute inset-0 rounded-full border border-indigo-500/30 scale-110 animate-pulse" />
-                 <div className="absolute inset-0 rounded-full border border-purple-500/20 scale-125 animation-delay-500" />
-               </div>
+             {/* Card Shadow/Depth */}
+             <div className="absolute -inset-2 bg-gradient-to-r from-red-500/20 to-blue-500/20 rounded-xl blur-2xl opacity-0 group-hover:opacity-50 transition-opacity duration-700 -z-10" />
+          </div>
+        </div>
+      </section>
 
-               <div className="text-center md:text-left">
-                 <h3 className="text-3xl font-bold text-white mb-2">Marka Sai Charan</h3>
-                 <p className="text-indigo-400 font-medium tracking-wide uppercase text-sm mb-6">Full Stack Engineer & AI Researcher</p>
-                 
-                 <p className="text-zinc-400 leading-relaxed mb-8 max-w-lg">
-                   "I build systems that build themselves. AutoMaintainer is the culmination of my work in agentic workflows, combining rigorous software engineering principles with probabilistic AI models."
-                 </p>
-
-                 <div className="flex gap-4 justify-center md:justify-start">
-                   <SocialLink href="#" icon={<Github size={20} />} label="GitHub" />
-                   <SocialLink href="#" icon={<Twitter size={20} />} label="Twitter" />
-                   <SocialLink href="#" icon={<Linkedin size={20} />} label="LinkedIn" />
-                 </div>
-               </div>
-             </div>
-           </div>
-        </section>
-
-      </div>
     </div>
   );
 }
 
-/* --- UI COMPONENTS --- */
+/* --- COMPONENTS --- */
 
-function SectionTitle({ title, subtitle }) {
+function StickySection({ step, title, desc, visual }) {
   return (
-    <div className="text-center mb-20">
-      <h2 className="text-4xl md:text-5xl font-bold mb-4">{title}</h2>
-      <p className="text-zinc-400 text-lg">{subtitle}</p>
+    <div className="grid grid-cols-1 md:grid-cols-2 min-h-[80vh] border-b border-white/5">
+       {/* Left: Text (Sticky) */}
+       <div className="p-12 md:p-24 flex flex-col justify-center border-r border-white/5 bg-[#050505] relative z-20">
+          <span className="font-mono text-5xl font-bold text-zinc-800 mb-8">{step}</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">{title}</h2>
+          <p className="text-lg text-zinc-400 leading-relaxed font-light">{desc}</p>
+       </div>
+       
+       {/* Right: Visual */}
+       <div className="bg-[#080808] flex items-center justify-center p-12 overflow-hidden relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/5 to-transparent opacity-50" />
+          {visual}
+       </div>
     </div>
   );
 }
 
-function ArchitectureCard({ icon, title, desc, delay }) {
+function Badge({ children }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      viewport={{ once: true }}
-      className="group p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-indigo-500/30 hover:bg-zinc-900/60 transition-all duration-300 backdrop-blur-sm"
-    >
-      <div className="mb-6 p-4 rounded-2xl bg-white/5 w-fit group-hover:scale-110 transition-transform duration-300 border border-white/5">
-        {icon}
-      </div>
-      <h3 className="text-2xl font-bold text-white mb-3">{title}</h3>
-      <p className="text-zinc-400 leading-relaxed">
-        {desc}
-      </p>
-    </motion.div>
+    <span className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[10px] font-mono text-zinc-400 uppercase tracking-wide">
+      {children}
+    </span>
   );
 }
 
-function SocialLink({ href, icon, label }) {
+function SocialIcon({ icon }) {
   return (
-    <a 
-      href={href} 
-      className="p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 hover:text-white transition-all text-zinc-400"
-      aria-label={label}
-    >
+    <a href="#" className="text-zinc-500 hover:text-white transition-colors">
       {icon}
     </a>
   );
+}
+
+/* --- VISUALS --- */
+
+function NetworkVisual() {
+  return (
+    <div className="relative w-64 h-64">
+       {[...Array(3)].map((_, i) => (
+         <motion.div 
+           key={i}
+           className="absolute inset-0 border border-indigo-500/30 rounded-full"
+           animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0, 0.5] }}
+           transition={{ duration: 3, delay: i, repeat: Infinity }}
+         />
+       ))}
+       <div className="absolute inset-0 flex items-center justify-center">
+         <Network size={64} className="text-indigo-500" />
+       </div>
+       {/* Nodes */}
+       <motion.div className="absolute top-0 left-10 w-2 h-2 bg-white rounded-full" animate={{ opacity: [0, 1, 0] }} transition={{ duration: 2, repeat: Infinity }} />
+       <motion.div className="absolute bottom-10 right-0 w-2 h-2 bg-white rounded-full" animate={{ opacity: [0, 1, 0] }} transition={{ duration: 2, delay: 1, repeat: Infinity }} />
+    </div>
+  )
+}
+
+function BrainVisual() {
+  return (
+    <div className="relative">
+       <Cpu size={120} className="text-zinc-700" />
+       <motion.div 
+          className="absolute inset-0 text-indigo-400 mix-blend-overlay"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 2, repeat: Infinity }}
+       >
+         <Cpu size={120} />
+       </motion.div>
+       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+         <Zap size={32} className="text-yellow-400 fill-yellow-400" />
+       </div>
+    </div>
+  )
+}
+
+function CodeVisual() {
+  return (
+    <div className="w-full max-w-sm bg-black border border-white/10 rounded-lg p-6 font-mono text-xs text-zinc-500 relative overflow-hidden">
+       <div className="flex gap-2 mb-4">
+         <div className="w-3 h-3 rounded-full bg-red-500/20" />
+         <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
+         <div className="w-3 h-3 rounded-full bg-green-500/20" />
+       </div>
+       <div className="space-y-2">
+         <motion.div initial={{ width: 0 }} whileInView={{ width: "100%" }} transition={{ duration: 1 }} className="h-2 bg-zinc-800 rounded w-3/4 overflow-hidden" />
+         <motion.div initial={{ width: 0 }} whileInView={{ width: "100%" }} transition={{ duration: 1, delay: 0.2 }} className="h-2 bg-indigo-900/50 rounded w-1/2 overflow-hidden" />
+         <motion.div initial={{ width: 0 }} whileInView={{ width: "100%" }} transition={{ duration: 1, delay: 0.4 }} className="h-2 bg-zinc-800 rounded w-full overflow-hidden" />
+         <motion.div initial={{ width: 0 }} whileInView={{ width: "100%" }} transition={{ duration: 1, delay: 0.6 }} className="h-2 bg-zinc-800 rounded w-2/3 overflow-hidden" />
+       </div>
+       <div className="absolute bottom-2 right-2 flex gap-1">
+          <span className="w-1 h-1 bg-green-500 rounded-full animate-ping" />
+       </div>
+    </div>
+  )
 }
