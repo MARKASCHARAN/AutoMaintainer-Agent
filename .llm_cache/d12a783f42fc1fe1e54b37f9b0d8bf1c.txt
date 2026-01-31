@@ -1,0 +1,10 @@
+{
+  "summary": "The `homepage` URL in `package.json` should match the repository name for correct GitHub Pages deployment. Currently, `homepage` is `https://MARKASCHARAN.github.io/nidhi1` while the `name` is `nidhi`. Changing `name` to `nidhi1` will ensure consistency.",
+  "patches": [
+    {
+      "path": "package.json",
+      "find": "\"name\": \"nidhi\"",
+      "replace": "\"name\": \"nidhi1\""
+    }
+  ]
+}

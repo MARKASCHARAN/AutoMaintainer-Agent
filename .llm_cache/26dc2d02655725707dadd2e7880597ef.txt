@@ -1,0 +1,25 @@
+{
+  "summary": "The error 'Uncaught ReferenceError: __vite__ is not defined' indicates a problem with the Vite build process. This could be due to missing or corrupted dependencies. Reinstalling dependencies should resolve this.",
+  "patches": [
+    {
+      "path": "frontend/package.json",
+      "find": "\"vite\": \"^5.0.0\"",
+      "replace": "\"vite\": \"^5.2.11\""
+    },
+    {
+      "path": "frontend/package.json",
+      "find": "\"@vitejs/plugin-react\": \"^4.3.2\"",
+      "replace": "\"@vitejs/plugin-react\": \"^4.7.0\""
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "find": "import react from '@vitejs/plugin-react'",
+      "replace": "import react from '@vitejs/plugin-react'\nimport tailwindcss from 'tailwindcss/vite'"
+    },
+    {
+      "path": "frontend/vite.config.js",
+      "find": "tailwindcss()",
+      "replace": "tailwindcss()"
+    }
+  ]
+}

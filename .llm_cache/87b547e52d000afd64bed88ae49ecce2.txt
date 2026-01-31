@@ -1,0 +1,10 @@
+{
+  "summary": "The `name` field in `package.json` should match the repository name specified in the `homepage` field for consistent deployment to GitHub Pages.",
+  "patches": [
+    {
+      "path": "package.json",
+      "find": "\"name\": \"nidhi\"",
+      "replace": "\"name\": \"nidhi1\""
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "root_cause": "Frontend build or dependency issue",
+  "files_responsible": [
+    "frontend/package.json",
+    "frontend/vite.config.js",
+    "frontend/src/config/constants.js"
+  ],
+  "explanation": "The error 'Uncaught ReferenceError: __vite__ is not defined' strongly suggests an issue with how Vite is processing the frontend build. This could stem from a corrupted `node_modules` installation, incorrect Vite configuration (`frontend/vite.config.js`), or a problem with how environment variables or constants are being handled during the build process (`frontend/src/config/constants.js`, `frontend/src/config/env.js`). A mismatch or issue in `frontend/package.json` regarding Vite or related dependencies could also be the cause. Running `npm install` or `yarn install` and clearing the Vite cache (`npm run dev -- --force` or similar) might resolve this."
+}
