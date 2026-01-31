@@ -6,7 +6,8 @@ import time
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from schemas.request import RunAgentRequest
-from backend.services.agent_service import run_agent_service
+from services.agent_service import run_agent_service
+
 
 router = APIRouter()
 
