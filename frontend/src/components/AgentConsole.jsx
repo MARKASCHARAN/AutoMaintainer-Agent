@@ -27,7 +27,8 @@ export default function AgentConsole() {
     setLogs([]);
     setSteps(prev => prev.map(s => ({ ...s, status: 'pending' })));
 
-    const streamUrl = `http://localhost:8000/stream-agent?repo_url=${encodeURIComponent(repoUrl)}`;
+   const streamUrl = `https://automaintainer-agent.onrender.com/stream-agent?repo_url=${encodeURIComponent(repoUrl)}`;
+
     const eventSource = new EventSource(streamUrl);
 
     eventSource.onmessage = (event) => {
