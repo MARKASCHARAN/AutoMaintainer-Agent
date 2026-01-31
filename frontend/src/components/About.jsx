@@ -84,9 +84,8 @@ export default function AboutPage() {
                    <div className="text-center md:text-left">
                       <h3 className="text-2xl font-bold text-white mb-2">Marka Sai Charan</h3>
                       <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-6">
-                        <Badge>System Architect</Badge>
-                        <Badge>AI Research</Badge>
-                        <Badge>Full Stack</Badge>
+                        
+                        <Badge>Software Engineer</Badge>
                       </div>
                       <p className="text-zinc-400 font-mono text-sm leading-relaxed mb-6">
                         "Building the autonomous workforce of the future. My goal is to make 'legacy code' a concept of the past."

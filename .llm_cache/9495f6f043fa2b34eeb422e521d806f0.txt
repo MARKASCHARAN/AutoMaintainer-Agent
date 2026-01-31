@@ -1,0 +1,15 @@
+{
+  "summary": "The error indicates that the `applyWeatherEffects` function is not defined when called from `script.js`. This is because `applyWeatherEffects` is defined inside a `DOMContentLoaded` event listener in `background.js`, and the `script.js` file is likely executing before this event fires or is not aware of the global scope where `applyWeatherEffects` is exposed. To fix this, we need to ensure that `applyWeatherEffects` is globally available or called after the DOM is ready and `background.js` has executed.",
+  "patches": [
+    {
+      "path": "background.js",
+      "find": "window.applyWeatherEffects = applyWeatherEffects;",
+      "replace": "window.applyWeatherEffects = applyWeatherEffects;\nwindow.clearWeatherEffects = clearWeatherEffects;\n});"
+    },
+    {
+      "path": "script.js",
+      "find": "applyWeatherEffects('Sunny', 1);",
+      "replace": "applyWeatherEffects('Sunny', 1);"
+    }
+  ]
+}
