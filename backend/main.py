@@ -8,15 +8,14 @@ load_dotenv()
 
 app = FastAPI(title="AutoMaintainer Agent API")
 
-# ✅ CORS: allow frontend + local dev
+# ✅ CORS: frontend + local dev
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://auto-maintainer-agent.vercel.app/",  # 👈 replace with your real Vercel URL
+        "https://auto-maintainer-agent.vercel.app",
     ],
     allow_credentials=True,
-    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
