@@ -1,10 +1,16 @@
 import { motion } from "framer-motion";
-import { Github, Twitter, BookOpen, Sparkles } from "lucide-react";
+import {
+  Github,
+  Twitter,
+  BookOpen,
+  Sparkles,
+  Linkedin,
+  Globe,
+} from "lucide-react";
 
 export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-white/5 bg-zinc-950">
-      
       {/* Ambient animated background */}
       <div className="absolute inset-0 -z-10">
         <motion.div
@@ -30,7 +36,6 @@ export default function Footer() {
       />
 
       <div className="relative max-w-7xl mx-auto px-6 py-16">
-        
         {/* Top branding */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,6 +44,7 @@ export default function Footer() {
           viewport={{ once: true }}
           className="flex flex-col md:flex-row justify-between gap-10 mb-14"
         >
+          {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Sparkles size={18} className="text-indigo-400" />
@@ -47,43 +53,87 @@ export default function Footer() {
               </h2>
             </div>
             <p className="max-w-md text-zinc-400 leading-relaxed text-sm">
-              An autonomous engineering system that observes, reasons, executes, and evolves.
-              Built to explore the future of self-healing software infrastructure.
+              An autonomous engineering system that observes, reasons, executes,
+              and evolves. Built to explore the future of self-healing software
+              infrastructure.
             </p>
           </div>
 
           {/* Navigation */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 text-sm">
+            {/* Product */}
             <div>
               <p className="text-zinc-500 mb-4 uppercase tracking-widest text-xs">
                 Product
               </p>
               <ul className="space-y-3">
-                <li><FooterLink label="Agent Console" /></li>
-                <li><FooterLink label="Architecture" /></li>
-                <li><FooterLink label="Demo Mode" /></li>
+                <li>
+                  <FooterLink label="Agent Console" href="#" />
+                </li>
+                <li>
+                  <FooterLink label="Architecture" href="#" />
+                </li>
+                <li>
+                  <FooterLink label="Demo Mode" href="#" />
+                </li>
               </ul>
             </div>
 
-            <div>
+            {/* Resources */}
+            {/* <div>
               <p className="text-zinc-500 mb-4 uppercase tracking-widest text-xs">
                 Resources
               </p>
               <ul className="space-y-3">
-                <li><FooterLink label="Documentation" /></li>
-                <li><FooterLink label="API Reference" /></li>
-                <li><FooterLink label="Roadmap" /></li>
+                <li>
+                  <FooterLink label="Documentation" href="#" />
+                </li>
+                <li>
+                  <FooterLink label="API Reference" href="#" />
+                </li>
+                <li>
+                  <FooterLink label="Roadmap" href="#" />
+                </li>
               </ul>
-            </div>
+            </div> */}
 
+            {/* Community / Socials */}
             <div>
               <p className="text-zinc-500 mb-4 uppercase tracking-widest text-xs">
                 Community
               </p>
               <ul className="space-y-3">
-                <li><FooterLink label="GitHub" icon={<Github size={14} />} /></li>
-                <li><FooterLink label="Twitter" icon={<Twitter size={14} />} /></li>
-                <li><FooterLink label="Blog" icon={<BookOpen size={14} />} /></li>
+                <li>
+                  <FooterLink
+                    label="GitHub"
+                    icon={<Github size={14} />}
+                    href="https://github.com/MARKASCHARAN"
+                  />
+                </li>
+
+                <li>
+                  <FooterLink
+                    label="Twitter / X"
+                    icon={<Twitter size={14} />}
+                    href="https://twitter.com/markasaicharan"
+                  />
+                </li>
+
+                <li>
+                  <FooterLink
+                    label="LinkedIn"
+                    icon={<Linkedin size={14} />}
+                    href="https://linkedin.com/in/markasaicharan"
+                  />
+                </li>
+
+                <li>
+                  <FooterLink
+                    label="Blog / Portfolio"
+                    icon={<Globe size={14} />}
+                    href="https://markasaicharan.dev"
+                  />
+                </li>
               </ul>
             </div>
           </div>
@@ -97,9 +147,11 @@ export default function Footer() {
           viewport={{ once: true }}
           className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-zinc-500"
         >
-          <span>© 2026 AutoMaintainer Agent — Built for the autonomous future.</span>
+          <span>
+            © 2026 AutoMaintainer Agent — Built for the autonomous future.
+          </span>
           <span className="text-zinc-600">
-            Crafted for VETROX Agentic 3.0 Hackathon
+            Made by Marka Sai Charan
           </span>
         </motion.div>
       </div>
@@ -107,10 +159,12 @@ export default function Footer() {
   );
 }
 
-function FooterLink({ label, icon }) {
+function FooterLink({ label, icon, href }) {
   return (
     <motion.a
-      href="#"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
       whileHover={{ x: 4 }}
       className="flex items-center gap-2 text-zinc-400 hover:text-indigo-400 transition-colors"
     >
