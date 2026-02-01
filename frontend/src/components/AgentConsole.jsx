@@ -27,7 +27,11 @@ export default function AgentConsole() {
     setLogs([]);
     setSteps(prev => prev.map(s => ({ ...s, status: 'pending' })));
 
-   const streamUrl = `https://automaintainer-agent.onrender.com/stream-agent?repo_url=${encodeURIComponent(repoUrl)}`;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+
+const streamUrl =
+  `${BASE_URL}/stream-agent?repo_url=${encodeURIComponent(repoUrl)}`;
+
 
     const eventSource = new EventSource(streamUrl);
 

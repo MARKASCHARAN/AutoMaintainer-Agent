@@ -18,7 +18,6 @@ MAX_ATTEMPTS = 3
 
 
 def fingerprint_plan(plan):
-    """Detect identical plans across retries to avoid infinite loops."""
     return hashlib.md5(str(plan).encode()).hexdigest()
 
 
@@ -27,6 +26,12 @@ def run_agent(repo_url: str):
 
     context = observe_repo(repo_url)
     repo_path = context["local_path"]
+
+    # 🔐 MUST be first: identity + authenticated remote
+    ensure_fork_and_remote(repo_url, repo_path)
+
+    # 🌿 Create branch ONCE per run
+    branch = create_branch(repo_path)
 
     diagnosis = diagnose_issue(context)
     last_feedback = None
@@ -37,10 +42,8 @@ def run_agent(repo_url: str):
 
         files = collect_files(repo_path)
 
-        # Force planner variability by injecting attempt #
         augmented_feedback = (
-            f"Attempt {attempt}. "
-            f"Previous feedback:\n{last_feedback}"
+            f"Attempt {attempt}. Previous feedback:\n{last_feedback}"
             if last_feedback else None
         )
 
@@ -51,89 +54,74 @@ def run_agent(repo_url: str):
         )
 
         if not isinstance(plan, dict) or "patches" not in plan:
-            print("❌ Invalid plan format")
-            last_feedback = f"Invalid plan structure: {plan}"
+            last_feedback = f"Invalid plan format: {plan}"
             continue
 
-        # Detect repeated plans
         fp = fingerprint_plan(plan)
         if fp in previous_fingerprints:
-            print("⚠️ Identical plan repeated — forcing failure")
             last_feedback = (
                 "You repeated the same plan which failed. "
-                "You must produce a DIFFERENT fix addressing the verifier error."
+                "Produce a DIFFERENT fix."
             )
             continue
         previous_fingerprints.add(fp)
 
-        # Quality filter
         if not validate_plan(plan, last_feedback or ""):
-            last_feedback = (
-                "Your fix was rejected. Do NOT bypass errors. "
-                "Fix the real bug revealed in logs."
-            )
+            last_feedback = "Plan rejected by validator."
             continue
 
-        # Apply patch
         try:
             applied = execute_plan(plan, repo_path)
         except Exception as e:
             last_feedback = f"Patch failed: {e}"
             continue
 
-        # Block no-op patch
         if not applied:
-            last_feedback = (
-                "Your patch applied but made no effective changes. "
-                "Propose a meaningful fix."
-            )
+            last_feedback = "Patch made no effective changes."
             continue
 
-        # Verify
         result = verify_fix(plan, repo_path)
 
-        if result.success:
-            print("✅ Verification passed")
+        if not result.success:
+            last_feedback = result.output[-4000:]
+            continue
 
-            git_commit(repo_path, f"AutoMaintainer fix in {attempt} attempt(s)")
+        print("✅ Verification passed")
 
-            ensure_fork_and_remote(repo_url, repo_path)
-            branch = create_branch(repo_path)
-            push_changes(repo_path)
-
-            try:
-                pr_body = generate_pr_description(repo_path, plan, result)
-            except Exception:
-                pr_body = plan.get("summary", "Automated fix by AutoMaintainer")
-
-            pr_title = f"AutoMaintainer Fix ({attempt} attempt)"
-            pr_url = create_pull_request(
-                repo_url=repo_url,
-                branch=branch,
-                title=pr_title,
-                body=pr_body
-            )
-
-            files_changed = list(set(p["path"] for p in plan.get("patches", [])))
-
-            return {
-                "status": "success",
-                "attempts": attempt,
-                "applied": applied,
-                "pr": pr_url,
-                "pr_title": pr_title,
-                "files_changed": files_changed,
-                "output": result.output[-2000:]
-            }
-
-        # Feed verifier output back
-        print("❌ Verification failed")
-        print(result.output[-1500:])
-        last_feedback = (
-            "Your fix failed verification.\n\n"
-            "Verifier output:\n"
-            f"{result.output[-4000:]}"
+        # ✅ Commit AFTER identity + branch exist
+        committed = git_commit(
+            repo_path,
+            f"AutoMaintainer fix in {attempt} attempt(s)"
         )
+
+        if not committed:
+            raise RuntimeError("Git commit failed — aborting PR creation")
+
+        # ✅ Push with authenticated remote
+        push_changes(repo_path)
+
+        pr_body = generate_pr_description(repo_path, plan, result)
+        pr_title = f"AutoMaintainer Fix ({attempt} attempt)"
+
+        pr_url = create_pull_request(
+            repo_url=repo_url,
+            branch=branch,
+            title=pr_title,
+            body=pr_body
+        )
+
+        files_changed = list(
+            {p["path"] for p in plan.get("patches", [])}
+        )
+
+        return {
+            "status": "success",
+            "attempts": attempt,
+            "applied": applied,
+            "pr": pr_url,
+            "files_changed": files_changed,
+            "output": result.output[-2000:]
+        }
 
     return {
         "status": "failed",
@@ -154,16 +142,13 @@ def validate_plan(plan: dict, error_log: str) -> bool:
         replace = patch.get("replace", "")
 
         if not replace.strip():
-            print("[Validator] Empty patch rejected")
             return False
 
         if path in suspicious_files:
-            if not any(word in error_log.lower() for word in ["dependency", "version", "install"]):
-                print(f"[Validator] Suspicious edit rejected: {path}")
+            if not any(
+                word in error_log.lower()
+                for word in ("dependency", "version", "install")
+            ):
                 return False
-
-        if replace.count("url_launcher") > 1:
-            print("[Validator] Duplicate spam rejected")
-            return False
 
     return True
