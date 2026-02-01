@@ -1,4 +1,0 @@
-{
-  "summary": "The Vite build process is encountering an error, indicated by `Uncaught ReferenceError: __vite__ is not defined`. This suggests a problem with Vite's integration or configuration. Reinstalling dependencies and clearing the Vite cache are the primary steps to resolve this. No code changes are immediately necessary, but ensuring `frontend/package.json` has correct Vite dependencies and `frontend/vite.config.js` is properly configured is important.",
-  "patches": []
-}

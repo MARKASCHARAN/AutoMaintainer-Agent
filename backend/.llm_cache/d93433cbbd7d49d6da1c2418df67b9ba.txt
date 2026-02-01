@@ -1,0 +1,10 @@
+{
+  "summary": "The `deploy.js` script needs to be executed to deploy the smart contract to a network. This script appears to be present but not executed, which is why the frontend cannot interact with the contract.",
+  "patches": [
+    {
+      "path": "smart-contract/package.json",
+      "find": "\"test\": \"echo \\\"Error: no test specified\\\" && exit 1\"",
+      "replace": "\"test\": \"echo \\\"Error: no test specified\\\" && exit 1\",\n    \"deploy\": \"node scripts/deploy.js\""
+    }
+  ]
+}
